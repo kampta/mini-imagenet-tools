@@ -31,10 +31,12 @@ class MiniImageNetGenerator(object):
         self.input_args = input_args
         if self.input_args.tar_dir is not None:
             print('Untarring ILSVRC2012 package')
-            self.imagenet_dir = './imagenet' if self.input_args.imagenet_dir is None else self.input_args.imagenet_dir
+            self.imagenet_dir = os.path.join(self.input_args.mini_dir, 'images')
             if not os.path.exists(self.imagenet_dir):
                 os.makedirs(self.imagenet_dir)
-            os.system('tar xvf ' + str(self.input_args.tar_dir) + ' -C ' + self.imagenet_dir)
+            if not os.path.exists(os.path.join(self.input_args.mini_dir, 'tar')):
+                os.makedirs(os.path.join(self.input_args.mini_dir, 'tar'))
+            os.system('tar xvf ' + str(self.input_args.tar_dir) + ' -C ' + os.path.join(self.input_args.mini_dir, 'tar'))
         elif self.input_args.imagenet_dir is not None:
             self.imagenet_dir = self.input_args.imagenet_dir
         else:
@@ -52,11 +54,11 @@ class MiniImageNetGenerator(object):
         
         for idx, keys in enumerate(self.mini_keys):
             print('Untarring ' + keys)
-            os.system('tar xvf ' + self.imagenet_dir + '/' + keys + '.tar -C ' + self.mini_dir)
+            os.system('tar xvf ' + os.path.join(self.input_args.mini_dir, 'tar') + '/' + keys + '.tar -C ' + os.path.join(self.imagenet_dir))
         print('All the tar files are untarred')
 
     def process_original_files(self):
-        self.processed_img_dir = './processed_images'
+        self.processed_img_dir = os.path.join(self.input_args.mini_dir, 'processed_images')
         split_lists = ['train', 'val', 'test']
         csv_files = ['./csv_files/train.csv','./csv_files/val.csv', './csv_files/test.csv']
 
@@ -87,7 +89,7 @@ class MiniImageNetGenerator(object):
                         os.makedirs(this_cls_dir)
 
                     lst_files = []
-                    for file in glob.glob(self.mini_dir + "/*"+cls+"*"):
+                    for file in glob.glob(self.imagenet_dir + "/*"+cls+"*"):
                         lst_files.append(file)
 
                     lst_index = [int(i[i.rfind('_')+1:i.rfind('.')]) for i in lst_files]
