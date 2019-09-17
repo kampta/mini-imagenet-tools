@@ -21,6 +21,7 @@ from tqdm import tqdm
 parser = argparse.ArgumentParser(description='')
 parser.add_argument('--tar_dir',  type=str)
 parser.add_argument('--imagenet_dir',  type=str)
+parser.add_argument('--mini_dir',  type=str)
 parser.add_argument('--image_resize',  type=int,  default=84)
 
 args = parser.parse_args()
@@ -30,17 +31,20 @@ class MiniImageNetGenerator(object):
         self.input_args = input_args
         if self.input_args.tar_dir is not None:
             print('Untarring ILSVRC2012 package')
-            self.imagenet_dir = './imagenet'
+            self.imagenet_dir = './imagenet' if self.input_args.imagenet_dir is None else self.input_args.imagenet_dir
             if not os.path.exists(self.imagenet_dir):
-                os.mkdir(self.imagenet_dir)
+                os.makedirs(self.imagenet_dir)
             os.system('tar xvf ' + str(self.input_args.tar_dir) + ' -C ' + self.imagenet_dir)
         elif self.input_args.imagenet_dir is not None:
             self.imagenet_dir = self.input_args.imagenet_dir
         else:
             print('You need to specify the ILSVRC2012 source file path')
-        self.mini_dir = './mini_imagenet'
+        if self.input_args.mini_dir is None:
+            self.mini_dir = './mini_imagenet'
+        else:
+            self.mini_dir = self.input_args.mini_dir
         if not os.path.exists(self.mini_dir):
-            os.mkdir(self.mini_dir)
+            os.makedirs(self.mini_dir)
         self.image_resize = self.input_args.image_resize
         
     def untar_mini(self):
